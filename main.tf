@@ -8,7 +8,7 @@ resource "aws_elastic_beanstalk_environment" "ElbEnv" {
   name                = "ElasticBeanstalkEnvironment"
   application         = aws_elastic_beanstalk_application.ElbApp.name
   solution_stack_name = "64bit Amazon Linux 2 v5.8.8 running Node.js 18"
-
+tags = var.tags
   #   setting {
   #     namespace = "aws:autoscaling:launchconfiguration"
   #     name      = "IamInstanceProfile"
