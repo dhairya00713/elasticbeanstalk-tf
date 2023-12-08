@@ -1,28 +1,20 @@
-variable "aws_region" {
-  type    = string
-  default = "us-east-1"
+variable "elasticapp" {
+  default = "ElasticApp"
 }
-
-variable "image_id" {
+variable "beanstalkappenv" {
+  default = "Production"
+}
+variable "solution_stack_name" {
+  type = string
+}
+variable "tier" {
   type = string
 }
 
-variable "vpc_id" {
-  description = "The ID of the existing VPC where the resources will be created."
-}
-
+variable "vpc_id" {}
+variable "public_subnets" {}
+variable "elb_public_subnets" {}
 variable "tags" {
   description = "A map of tags to apply to the resources created."
   type        = map(string)
-}
-
-variable "availability_zones" {
-  description = "A list of availability zones for the Elastic Load Balancer."
-  type        = list(string)
-  default     = ["us-east-1a", "us-east-1b"]
-}
-
-variable "vpc_zone_identifiers" {
-  description = "A list of subnet IDs for the Auto Scaling Group."
-  type        = list(string)
 }
