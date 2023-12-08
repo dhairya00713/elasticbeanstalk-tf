@@ -5,9 +5,38 @@ resource "aws_elastic_beanstalk_application" "ElbApp" {
 }
 
 resource "aws_elastic_beanstalk_environment" "ElbEnv" {
-  name                = "my-eb-env"
+  name                = "ElasticBeanstalkEnvironment"
   application         = aws_elastic_beanstalk_application.ElbApp.name
   solution_stack_name = "64bit Amazon Linux 2 v5.8.8 running Node.js 18"
+
+  #   setting {
+  #     namespace = "aws:autoscaling:launchconfiguration"
+  #     name      = "IamInstanceProfile"
+  #     value     = aws_iam_role.ElbRole.name
+  #   }
+  #   setting {
+  #     namespace = "aws:autoscaling:launchconfiguration"
+  #     name      = "IamInstanceProfile"
+  #     value     = "AWSServiceRoleForElasticBeanstalk"
+  #   }
+  #   setting {
+  #     namespace = "aws:autoscaling:launchconfiguration"
+  #     name      = "InstanceType"
+  #     value     = "t2.micro"
+  #   }
+
+  ####################
+  setting {
+    namespace = "aws:autoscaling:launchconfiguration"
+    name      = "IamInstanceProfile"
+    value     = "aws-elasticbeanstalk-ec2-role"
+  }
+  setting {
+    namespace = "aws:ec2:vpc"
+    name      = "AssociatePublicIpAddress"
+    value     = "True"
+  }
+
 }
 
 resource "aws_elb" "DemoElb" {
@@ -22,9 +51,14 @@ resource "aws_elb" "DemoElb" {
 }
 
 resource "aws_launch_configuration" "MyLaunchConfig" {
-  name          = "MyLaunchConfig"
+  name          = "MyLaunchConfigNew"
   image_id      = var.image_id
   instance_type = "t2.micro"
+
+  #   iam_instance_profile = aws_iam_role.ElbRole.name
+  iam_instance_profile = "aws-elasticbeanstalk-ec2-role"
+
+  security_groups = ["sg-0f7f3772a6441c4ac"]
 
   lifecycle {
     create_before_destroy = true
@@ -86,20 +120,20 @@ resource "aws_cloudwatch_metric_alarm" "scale_in_alarm" {
 }
 
 resource "aws_autoscaling_policy" "scale_out_policy" {
-  name                      = "scale-out-policy"
-  scaling_adjustment        = 1
-  adjustment_type           = "ChangeInCapacity"
-  cooldown                  = 300
-  policy_type               = "SimpleScaling"
-  autoscaling_group_name    = aws_autoscaling_group.my_asg.name
+  name                   = "scale-out-policy"
+  scaling_adjustment     = 1
+  adjustment_type        = "ChangeInCapacity"
+  cooldown               = 300
+  policy_type            = "SimpleScaling"
+  autoscaling_group_name = aws_autoscaling_group.my_asg.name
 }
 resource "aws_autoscaling_policy" "scale_in_policy" {
-  name                      = "scale-in-policy"
-  scaling_adjustment        = -1
-  adjustment_type           = "ChangeInCapacity"
-  cooldown                  = 600
-  policy_type               = "SimpleScaling"
-  autoscaling_group_name    = aws_autoscaling_group.my_asg.name
+  name                   = "scale-in-policy"
+  scaling_adjustment     = -1
+  adjustment_type        = "ChangeInCapacity"
+  cooldown               = 600
+  policy_type            = "SimpleScaling"
+  autoscaling_group_name = aws_autoscaling_group.my_asg.name
 }
 
 # resource "aws_elastic_beanstalk_environment" "tag" {
